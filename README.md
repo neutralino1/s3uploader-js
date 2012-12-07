@@ -25,5 +25,10 @@ This is a simple Javascript library to upload a file to Amazon S3 asynchronously
 
 ### Javascript
 
+    file = document.getElementById('submit').files[0];
     uploader = new S3Uploader();
+    uploader.onStart = myStartCallback;
+    uploader.onProcess = myProgressCallback; // passes the completion fraction as argument
+    uploader.onComplete = myCompleteCallback;
+    uploader.onError = myErrorCallback;
     uploader.upload(file);
