@@ -32,3 +32,7 @@ This is a simple Javascript library to upload a file to Amazon S3 asynchronously
     uploader.onComplete = myCompleteCallback;
     uploader.onError = myErrorCallback;
     uploader.upload(file);
+
+## Support
+
+Tweet me up at [@neutralino1](http://twitter.com/neutralino1) for questions and requests.
