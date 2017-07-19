@@ -1,7 +1,7 @@
 Amazon S3 Ajax uploader
 =======================
 
-This is a Javascript library to upload large files (multi-GB) to a secure S3 bucket straight from the client (think wetransfer). The large file is chopped in slices of configurable sizes. Then each slice is signed by a request to your back-end and then uploaded asynchronously to your secure S3 bucket.
+This is a Javascript library to upload large files (multi-GB) to a secure S3 bucket straight from the client (think wetransfer). The large file is chopped in slices of configurable sizes (5MB by default). Then each slice is signed by a request to your back-end and then uploaded concurrently and asynchronously to your secure S3 bucket.
 
 ## Usage
 
@@ -27,6 +27,9 @@ This is a Javascript library to upload large files (multi-GB) to a secure S3 buc
     uploader.onProgress = myProgressCallback; // passes the completion fraction as argument
     uploader.onComplete = myCompleteCallback;
     uploader.onError = myErrorCallback;
+    uploader.settings.chunkSize = 10 * 1024 * 1024; // optional chunk size
+    uploader.settings.maxRetries = 5; // optional max retries for failed chunk uploads
+    uploader.settings.maxConcurrent = 3; // optional maximum number of concurrent uploads
     uploader.upload(file);
 ```
 
