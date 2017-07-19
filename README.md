@@ -1,30 +1,26 @@
 Amazon S3 Ajax uploader
 =======================
 
-This is a simple Javascript library to upload a file to Amazon S3 asynchronously.
+This is a Javascript library to upload large files (multi-GB) to a secure S3 bucket straight from the client (think wetransfer). The large file is chopped in slices of configurable sizes. Then each slice is signed by a request to your back-end and then uploaded asynchronously to your secure S3 bucket.
 
 ## Usage
 
 ### Markup
 
+```HTML
     <html>
       <head>
         <script type='text/javascript' src='s3uploader.js'></script>
       <head>
       <body>
-        <input type='hidden' id='bucket' value='YourBucket'>
-        <input type='hidden' id='key' value='AKey'>
-        <input type='hidden' id='acl' value='YourACL'>
-        <input type='hidden' id='AWSAccessKeyId' value='YourAWSAccessKeyId'>
-        <input type='hidden' id='policy' value='Base64Encodedpolicy'>
-        <input type='hidden' id='signature' value='Base64EncodedSignature'>
+        <input type='hidden' id='path' value='path'>
         <input name="template" type="file">
         <button id='submit'>Upload</button>
       </body>
     </html>
 
 ### Javascript
-
+```javascript
     file = document.getElementById('submit').files[0];
     uploader = new S3Uploader();
     uploader.onStart = myStartCallback;
@@ -32,7 +28,49 @@ This is a simple Javascript library to upload a file to Amazon S3 asynchronously
     uploader.onComplete = myCompleteCallback;
     uploader.onError = myErrorCallback;
     uploader.upload(file);
+```
 
+### Back-end
+Your server-side app needs to have a `/sign` end-point to sign each file slice.
+In Rails in can look something like
+```ruby
+class ApplicationController < ActionController::Base
+
+  def sign
+    render_404 unless check_domain!
+    date = Time.now.httpdate
+    query = params[:path].split('?')[-1]
+    filename = params[:path].split('/')[-1].split('?')[0]
+    path = params[:path].split(filename)[0]
+    params[:path] = path + ERB::Util.url_encode(filename) + '?' + query
+    "".tap do |signature|
+      signature << "#{params[:method].upcase}\n"
+      signature << "\n"
+      signature << "#{params[:contenttype]}\n" 
+      signature << "\n"
+      signature << "x-amz-acl:#{params[:acl]}\n" if params[:acl]
+      signature << "x-amz-date:#{date}\n"
+      signature << "/#{S3_CONFIG[:bucket]}#{params[:path]}"
+      signature = Base64.encode64(OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('sha1'), S3_CONFIG[:secret_access_key], signature)).gsub("\n","")
+      {
+        signature: "AWS #{S3_CONFIG[:access_key_id]}:#{signature}", 
+        date: date,
+        url: "https://#{:S3_CONFIG[:bucket]}.s3-eu-west-1.amazonaws.com#{params[:path]}"
+      }.tap do |response|
+        response[:acl] = params[:acl] if params[:acl]
+        render json: response
+      end
+    end
+  end
+
+  def check_domain!
+    DOMAINS.any? { |domain| match_domain?(domain, request.referer) }
+  end
+
+  def match_domain?(domains, url)
+    domains.split(',').any? { |domain| /\Ahttps?:\/\/(www.)?#{domain}\//.match(url) }
+  end
+end
 ## Support
 
 Tweet me up at [@neutralino1](http://twitter.com/neutralino1) for questions and requests.
