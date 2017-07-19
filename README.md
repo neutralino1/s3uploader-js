@@ -1,7 +1,7 @@
 Amazon S3 multi-chunk asynchronous uploader
 =======================
 
-This is a Javascript library to upload large files (multi-GB) to a secure S3 bucket straight from the client (think wetransfer). The large file is chopped in slices of configurable sizes (5MB by default). Then each slice is signed by a request to your back-end and then uploaded concurrently and asynchronously to your secure S3 bucket.
+This is a Javascript library to securely upload large files (multi-GB) to a private S3 bucket straight from the client (think wetransfer). The large file is chopped in slices of configurable sizes (5MB by default). Then each slice is signed by a request to your back-end and then uploaded concurrently and asynchronously to your private S3 bucket.
 
 ## Usage
 
