@@ -71,6 +71,7 @@ class ApplicationController < ActionController::Base
     domains.split(',').any? { |domain| /\Ahttps?:\/\/(www.)?#{domain}\//.match(url) }
   end
 end
+```
 ## Support
 
 Tweet me up at [@neutralino1](http://twitter.com/neutralino1) for questions and requests.
