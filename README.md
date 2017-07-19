@@ -18,7 +18,7 @@ This is a Javascript library to upload large files (multi-GB) to a secure S3 buc
         <button id='submit'>Upload</button>
       </body>
     </html>
-
+```
 ### Javascript
 ```javascript
     file = document.getElementById('submit').files[0];
