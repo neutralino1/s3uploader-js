@@ -51,7 +51,8 @@ class ApplicationController < ActionController::Base
       signature << "x-amz-acl:#{params[:acl]}\n" if params[:acl]
       signature << "x-amz-date:#{date}\n"
       signature << "/#{S3_CONFIG[:bucket]}#{params[:path]}"
-      signature = Base64.encode64(OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('sha1'), S3_CONFIG[:secret_access_key], signature)).gsub("\n","")
+      signature = Base64.encode64(OpenSSL::HMAC.digest(OpenSSL::Digest::Digest.new('sha1'), 
+                                  S3_CONFIG[:secret_access_key], signature)).gsub("\n","")
       {
         signature: "AWS #{S3_CONFIG[:access_key_id]}:#{signature}", 
         date: date,
